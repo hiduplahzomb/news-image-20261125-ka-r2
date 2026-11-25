@@ -136,8 +136,58 @@ def draw_flag_eu(draw, x, y, w, h):
 
 
 def draw_flag_id(draw, x, y, w, h):
+    # thin outline so the white half stays visible on a white tile
     draw.rectangle([S(x), S(y), S(x + w), S(y + h / 2)], fill=(200, 20, 30))
     draw.rectangle([S(x), S(y + h / 2), S(x + w), S(y + h)], fill=(255, 255, 255))
+    draw.rectangle([S(x), S(y), S(x + w), S(y + h)], outline=(150, 150, 155),
+                   width=S(2))
+
+
+def draw_flag_au(draw, x, y, w, h):
+    """Australia: blue ensign, Union Jack canton, Southern Cross + big star."""
+    draw.rectangle([S(x), S(y), S(x + w), S(y + h)], fill=(0, 0, 139))
+    cw, ch = w / 2, h / 2
+    # canton: simplified Union Jack (white saltire + cross, red cross)
+    draw.rectangle([S(x), S(y), S(x + cw), S(y + ch)], fill=(0, 0, 139))
+    draw.line([S(x), S(y), S(x + cw), S(y + ch)], fill=(255, 255, 255),
+              width=S(3))
+    draw.line([S(x + cw), S(y), S(x), S(y + ch)], fill=(255, 255, 255),
+              width=S(3))
+    draw.line([S(x + cw / 2), S(y), S(x + cw / 2), S(y + ch)],
+              fill=(255, 255, 255), width=S(6))
+    draw.line([S(x), S(y + ch / 2), S(x + cw), S(y + ch / 2)],
+              fill=(255, 255, 255), width=S(6))
+    draw.line([S(x + cw / 2), S(y), S(x + cw / 2), S(y + ch)],
+              fill=(200, 20, 30), width=S(3))
+    draw.line([S(x), S(y + ch / 2), S(x + cw), S(y + ch / 2)],
+              fill=(200, 20, 30), width=S(3))
+    # big seven-point star below the canton + Southern Cross stars
+    for (sx, sy, sr) in [(x + cw / 2, y + ch + (h - ch) * 0.55, 5),
+                          (x + w * 0.72, y + h * 0.30, 3),
+                          (x + w * 0.82, y + h * 0.55, 3),
+                          (x + w * 0.68, y + h * 0.62, 3),
+                          (x + w * 0.90, y + h * 0.72, 3),
+                          (x + w * 0.80, y + h * 0.85, 3)]:
+        draw.ellipse([S(sx - sr), S(sy - sr), S(sx + sr), S(sy + sr)],
+                     fill=(255, 255, 255))
+
+
+def draw_flag_sb(draw, x, y, w, h):
+    """Solomon Islands: blue upper triangle, green lower triangle,
+    yellow diagonal band rising left to right, five white stars."""
+    draw.rectangle([S(x), S(y), S(x + w), S(y + h)], fill=(0, 80, 160))
+    draw.polygon([(S(x), S(y + h)), (S(x + w), S(y + h)), (S(x + w), S(y))],
+                 fill=(0, 130, 60))
+    # yellow diagonal band (lower-hoist to upper-fly)
+    band = h * 0.16
+    draw.polygon([(S(x), S(y + h)), (S(x), S(y + h - band)),
+                  (S(x + w), S(y + band)), (S(x + w), S(y))],
+                 fill=(255, 210, 0))
+    for (sx, sy) in [(x + w * 0.10, y + h * 0.15), (x + w * 0.18, y + h * 0.10),
+                     (x + w * 0.07, y + h * 0.32), (x + w * 0.20, y + h * 0.24),
+                     (x + w * 0.14, y + h * 0.42)]:
+        draw.ellipse([S(sx - 3), S(sy - 3), S(sx + 3), S(sy + 3)],
+                     fill=(255, 255, 255))
 
 
 def scene_hormuz(draw, box):
@@ -225,86 +275,108 @@ def scene_rocket(draw, box):
                  fill=(1, 80, 40))
     draw.ellipse([S(rx + 33), S(ry + 42), S(rx + 39), S(ry + 48)],
                  fill=(255, 255, 255))
-    # fins + flame
+    # fins + flame (kept well inside the panel: flame tip at +28)
     draw.polygon([(S(rx), S(ry + rh)), (S(rx - 14), S(ry + rh + 16)),
                   (S(rx), S(ry + rh + 8))], fill=(200, 30, 40))
     draw.polygon([(S(rx + rw), S(ry + rh)), (S(rx + rw + 14), S(ry + rh + 16)),
                   (S(rx + rw), S(ry + rh + 8))], fill=(200, 30, 40))
     draw.polygon([(S(rx + 8), S(ry + rh)), (S(rx + rw - 8), S(ry + rh)),
-                  (S(rx + rw / 2), S(ry + rh + 34))], fill=(255, 140, 0))
+                  (S(rx + rw / 2), S(ry + rh + 28))], fill=(255, 140, 0))
     draw.polygon([(S(rx + 14), S(ry + rh)), (S(rx + rw - 14), S(ry + rh)),
-                  (S(rx + rw / 2), S(ry + rh + 20))], fill=(255, 220, 60))
+                  (S(rx + rw / 2), S(ry + rh + 17))], fill=(255, 220, 60))
+    # TIANGONG label: tucked directly under the station module, on a navy
+    # patch so the orbit arc cannot strike through the text
     f_lab = font(SANS_B, 13)
-    draw.text((S(x1 - 118), S(y0 + h - 22)), "TIANGONG", font=f_lab,
+    tw_lab = draw.textlength("TIANGONG", font=f_lab) / SS
+    draw.rectangle([S(sx - 3), S(sy + 17), S(sx + tw_lab + 3), S(sy + 34)],
+                   fill=(10, 16, 42))
+    draw.text((S(sx), S(sy + 19)), "TIANGONG", font=f_lab,
               fill=(255, 204, 0))
 
 
 def scene_trade(draw, box):
+    """Three clean stat tiles — one figure per tile, flags correct and
+    never overlapped: EU flag on the EU tile, Indonesia flag on the
+    Indonesia tile, €600m on its own tile. No shared axis."""
     x0, y0, x1, y1 = box
     w, h = x1 - x0, y1 - y0
     draw.rectangle([S(x0), S(y0), S(x1), S(y1)], fill=(238, 240, 244))
-    base = y1 - 26
-    f_val = font(SANS_B, 14)
-    f_cap = font(SANS, 12)
-    bars = [
-        ("90%", "duties cut", 90, (0, 51, 153), "eu"),
-        ("€650m", "saved / year", 65, (0, 120, 110), "id"),
-        ("50% to 0", "car duty", 50, (180, 60, 50), "eu"),
+    f_val = font(SANS_B, 28)
+    f_cap = font(SANS, 13)
+    tiles = [
+        ("eu", "98.5%", "of EU tariff lines", "go duty-free"),
+        ("id", "90%", "of Indonesian goods", "go duty-free"),
+        (None, "\u20ac600m", "saved by EU exporters", "every year"),
     ]
-    bw = 74
-    gap = (w - 3 * bw) / 4
-    for i, (val, cap, pct, col, flag) in enumerate(bars):
-        bx = x0 + gap + i * (bw + gap)
-        bh = (h - 64) * pct / 100.0
-        by = base - bh
-        draw.rectangle([S(bx), S(by), S(bx + bw), S(base)], fill=col)
+    tw = 148
+    gap = (w - 3 * tw) / 4
+    # tiles start below the beat chip (chip ends ~y0+33) so no flag is covered
+    th = h - 16 - 26
+    for i, (flag, val, cap1, cap2) in enumerate(tiles):
+        tx = x0 + gap + i * (tw + gap)
+        ty = y0 + 34
+        draw.rectangle([S(tx), S(ty), S(tx + tw), S(ty + th)],
+                       fill=(255, 255, 255), outline=(180, 184, 190),
+                       width=S(2))
+        fy = ty + 8
         if flag == "eu":
-            draw_flag_eu(draw, bx + 18, by - 28, 38, 24)
+            draw_flag_eu(draw, tx + (tw - 52) / 2, fy, 52, 30)
+        elif flag == "id":
+            draw_flag_id(draw, tx + (tw - 52) / 2, fy, 52, 30)
         else:
-            draw_flag_id(draw, bx + 18, by - 28, 38, 24)
-        # value inside the bar top (white), never above the panel
+            # euro mark, centred where a flag sits on the other tiles
+            f_eu = font(SERIF_B, 30)
+            draw.text((S(tx + (tw - 22) / 2), S(fy - 2)), "\u20ac",
+                      font=f_eu, fill=(0, 51, 153))
         vw = draw.textlength(val, font=f_val) / SS
-        draw.text((S(bx + (bw - vw) / 2), S(by + 5)), val, font=f_val,
-                  fill=(255, 255, 255))
-        cw = draw.textlength(cap, font=f_cap) / SS
-        draw.text((S(bx + (bw - cw) / 2), S(base + 4)), cap, font=f_cap,
-                  fill=(40, 40, 45))
-    draw.line([S(x0 + 8), S(base), S(x1 - 8), S(base)], fill=(60, 60, 65),
-              width=S(2))
+        draw.text((S(tx + (tw - vw) / 2), S(ty + 46)), val, font=f_val,
+                  fill=(15, 15, 20))
+        for j, cap in enumerate((cap1, cap2)):
+            cw = draw.textlength(cap, font=f_cap) / SS
+            draw.text((S(tx + (tw - cw) / 2), S(ty + 84 + j * 16)), cap,
+                      font=f_cap, fill=(40, 40, 45))
 
 
 def scene_huawei(draw, box):
+    """Courtroom: portrait phone (left), gavel with its head PERPENDICULAR
+    to the handle (right), verdict numerals (top right), and a tidy wooden
+    bench bar along the bottom — no loose stain."""
     x0, y0, x1, y1 = box
     w, h = x1 - x0, y1 - y0
     draw.rectangle([S(x0), S(y0), S(x1), S(y1)], fill=(24, 32, 54))
-    # phone with HUAWEI
-    px, py, pw, ph = x0 + 28, y0 + 22, 96, 96
+    # phone, portrait: 72 wide x 104 tall, top below the beat chip
+    px, py, pw, ph = x0 + 26, y0 + 40, 72, 104
     draw.rounded_rectangle([S(px), S(py), S(px + pw), S(py + ph)], radius=S(10),
                            fill=(15, 15, 20), outline=(180, 180, 190),
                            width=S(2))
-    f_ph = font(SANS_B, 15)
+    f_ph = font(SANS_B, 13)
     t = "HUAWEI"
     tw = draw.textlength(t, font=f_ph) / SS
-    draw.text((S(px + (pw - tw) / 2), S(py + 36)), t, font=f_ph,
+    draw.text((S(px + (pw - tw) / 2), S(py + 42)), t, font=f_ph,
               fill=(255, 255, 255))
     draw.ellipse([S(px + pw / 2 - 4), S(py + ph - 14), S(px + pw / 2 + 4),
                   S(py + ph - 6)], fill=(120, 120, 130))
-    # gavel (diagonal)
-    gx, gy = x0 + 190, y0 + 78
-    ang = math.radians(-35)
-    dx, dy = math.cos(ang), math.sin(ang)
-    draw.line([S(gx - 70 * dx), S(gy - 70 * dy), S(gx + 70 * dx),
-               S(gy + 70 * dy)], fill=(150, 105, 60), width=S(12))
-    hx, hy = gx + 52 * dx, gy + 52 * dy
-    pxn, pyn = -dy, dx
-    draw.polygon([(S(hx - 30 * dx + 16 * pxn), S(hy - 30 * dy + 16 * pyn)),
-                  (S(hx + 30 * dx + 16 * pxn), S(hy + 30 * dy + 16 * pyn)),
-                  (S(hx + 30 * dx - 16 * pxn), S(hy + 30 * dy - 16 * pyn)),
-                  (S(hx - 30 * dx - 16 * pxn), S(hy - 30 * dy - 16 * pyn))],
+    # gavel: handle runs up-right; head is a block across the handle,
+    # long axis perpendicular to the handle (never a paddle)
+    hx0, hy0 = x0 + 150, y0 + 112
+    hx1, hy1 = x0 + 258, y0 + 44
+    draw.line([S(hx0), S(hy0), S(hx1), S(hy1)], fill=(150, 105, 60),
+              width=S(12))
+    dx, dy = hx1 - hx0, hy1 - hy0
+    ln = math.hypot(dx, dy)
+    dx, dy = dx / ln, dy / ln
+    pxn, pyn = -dy, dx  # perpendicular unit vector
+    cx, cy = hx1 + 6 * dx, hy1 + 6 * dy
+    draw.polygon([(S(cx - 15 * dx + 32 * pxn), S(cy - 15 * dy + 32 * pyn)),
+                  (S(cx + 15 * dx + 32 * pxn), S(cy + 15 * dy + 32 * pyn)),
+                  (S(cx + 15 * dx - 32 * pxn), S(cy + 15 * dy - 32 * pyn)),
+                  (S(cx - 15 * dx - 32 * pxn), S(cy - 15 * dy - 32 * pyn))],
                  fill=(120, 80, 40))
-    # sound block
-    draw.ellipse([S(x0 + 330), S(y1 - 34), S(x0 + 420), S(y1 - 18)],
-                 fill=(120, 80, 40))
+    # bench bar: one tidy wooden strip along the bottom, gavel rests above it
+    draw.rounded_rectangle([S(x0 + 140), S(y1 - 22), S(x1 - 130), S(y1 - 8)],
+                           radius=S(4), fill=(120, 80, 40))
+    draw.rectangle([S(x0 + 140), S(y1 - 22), S(x1 - 130), S(y1 - 18)],
+                   fill=(165, 115, 60))
     # verdict numerals
     f_big = font(SERIF_B, 44)
     draw.text((S(x1 - 128), S(y0 + 18)), "10 / 12", font=f_big,
@@ -314,35 +386,54 @@ def scene_huawei(draw, box):
               fill=(255, 255, 255))
 
 
-def scene_elnino(draw, box):
+def scene_solomon(draw, box):
+    """Treaty signing in Canberra: the Australian and Solomon Islands
+    flags stand large behind a signing table; two leaders lean over the
+    document, one holding the pen, a gold seal on the page."""
     x0, y0, x1, y1 = box
     w, h = x1 - x0, y1 - y0
-    draw.rectangle([S(x0), S(y0), S(x1), S(y1)], fill=(24, 90, 150))
-    # land hints: South America (left), Australia (right)
-    draw.polygon([(S(x0), S(y0 + 20)), (S(x0 + 52), S(y0 + 10)),
-                  (S(x0 + 44), S(y0 + h - 20)), (S(x0), S(y1))],
-                 fill=(198, 178, 138))
-    draw.polygon([(S(x1), S(y0 + 60)), (S(x1 - 58), S(y0 + 70)),
-                  (S(x1 - 48), S(y1 - 10)), (S(x1), S(y1))],
-                 fill=(198, 178, 138))
-    # warm anomaly blob over the equatorial Pacific
-    cx, cy = x0 + w * 0.52, y0 + h * 0.52
-    draw.ellipse([S(cx - 150), S(cy - 34), S(cx + 150), S(cy + 34)],
-                 fill=(230, 90, 40))
-    draw.ellipse([S(cx - 105), S(cy - 22), S(cx + 105), S(cy + 22)],
-                 fill=(245, 150, 50))
-    draw.ellipse([S(cx - 60), S(cy - 12), S(cx + 60), S(cy + 12)],
-                 fill=(255, 205, 80))
-    # thermometer
-    tx = x1 - 52
-    draw.rounded_rectangle([S(tx), S(y0 + 18), S(tx + 16), S(y1 - 34)],
-                           radius=S(8), fill=(255, 255, 255))
-    draw.ellipse([S(tx - 7), S(y1 - 44), S(tx + 23), S(y1 - 14)],
-                 fill=(220, 40, 30))
-    draw.rectangle([S(tx + 5), S(y0 + 34), S(tx + 11), S(y1 - 30)],
-                   fill=(220, 40, 30))
-    f_lab = font(SANS_B, 15)
-    draw.text((S(cx - 46), S(cy - 10)), "+4.0°C", font=f_lab, fill=(120, 30, 10))
+    draw.rectangle([S(x0), S(y0), S(x1), S(y1)], fill=(222, 226, 230))
+    # flag poles + flags: hung BELOW the beat chip (chip ends ~y0+33),
+    # large, upright, correct orientation, down to the table top
+    draw.rectangle([S(x0 + 20), S(y0 + 38), S(x0 + 24), S(y1 - 52)],
+                   fill=(90, 70, 40))
+    draw.rectangle([S(x1 - 24), S(y0 + 38), S(x1 - 20), S(y1 - 52)],
+                   fill=(90, 70, 40))
+    draw_flag_au(draw, x0 + 24, y0 + 38, 148, 66)
+    draw_flag_sb(draw, x1 - 172, y0 + 38, 148, 66)
+    # signing table
+    draw.rectangle([S(x0 + 10), S(y1 - 52), S(x1 - 10), S(y1 - 8)],
+                   fill=(90, 60, 35))
+    draw.rectangle([S(x0 + 10), S(y1 - 52), S(x1 - 10), S(y1 - 44)],
+                   fill=(140, 95, 55))
+    # document on the table
+    dx0, dy0 = x0 + w / 2 - 78, y1 - 96
+    draw.rectangle([S(dx0), S(dy0), S(dx0 + 156), S(y1 - 50)],
+                   fill=(255, 255, 255), outline=(120, 120, 125), width=S(2))
+    for j in range(3):
+        draw.rectangle([S(dx0 + 14), S(dy0 + 10 + j * 8), S(dx0 + 118),
+                        S(dy0 + 13 + j * 8)], fill=(150, 150, 155))
+    # gold seal on the document
+    draw.ellipse([S(dx0 + 122), S(dy0 + 26), S(dx0 + 144), S(dy0 + 48)],
+                 fill=(212, 175, 55), outline=(160, 120, 20), width=S(2))
+    # two leaders leaning over the document (dark suits, heads bowed)
+    for (hx, suit) in [(x0 + w / 2 - 118, (20, 30, 55)),
+                        (x0 + w / 2 + 118, (45, 45, 50))]:
+        # head kept below the beat chip (chip ends ~y0+33)
+        draw.ellipse([S(hx - 15), S(dy0 - 24), S(hx + 15), S(dy0 + 6)],
+                     fill=(210, 170, 135))
+        draw.polygon([(S(hx - 34), S(y1 - 50)), (S(hx + 34), S(y1 - 50)),
+                      (S(hx + 22), S(dy0 - 6)), (S(hx - 22), S(dy0 - 6))],
+                     fill=suit)
+        draw.polygon([(S(hx - 8), S(dy0 - 6)), (S(hx + 8), S(dy0 - 6)),
+                      (S(hx + 4), S(dy0 + 16)), (S(hx - 4), S(dy0 + 16))],
+                     fill=(255, 255, 255))
+        # arm reaching to the document
+        draw.line([S(hx + 10), S(dy0 + 4), S(x0 + w / 2 - 14 if hx < x0 + w / 2
+                   else x0 + w / 2 + 14), S(dy0 + 22)], fill=suit, width=S(9))
+    # pen in the right leader's hand, touching the page
+    draw.line([S(x0 + w / 2 + 96), S(dy0 + 14), S(x0 + w / 2 + 66), S(dy0 + 26)],
+              fill=(20, 20, 25), width=S(4))
 
 
 def build():
@@ -353,13 +444,13 @@ def build():
     # --- masthead: single navy band, date only ---
     d.rectangle([0, 0, S(W), S(90)], fill=navy)
     f_date = font(SERIF_B, 52)
-    t = "TUESDAY, 25 NOVEMBER 2026"
+    t = "WEDNESDAY, 25 NOVEMBER 2026"
     tw = d.textlength(t, font=f_date) / SS
     d.text((S((W - tw) / 2), S(16)), t, font=f_date, fill=(255, 255, 255))
     d.rectangle([0, S(90), S(W), S(94)], fill=(200, 160, 40))
 
-    # --- hero panel ---
-    hx0, hy0, hx1, hy1 = 16, 102, 1008, 506
+    # --- hero panel (trimmed to 450: title + 2-line sub end ~14px above edge) ---
+    hx0, hy0, hx1, hy1 = 16, 102, 1008, 450
     d.rectangle([S(hx0), S(hy0), S(hx1), S(hy1)], fill=(255, 255, 255),
                 outline=(30, 30, 35), width=S(2))
     scene_hormuz(d, (hx0 + 2, hy0 + 2, hx1 - 2, hy0 + 224))
@@ -370,49 +461,45 @@ def build():
            fill=(15, 15, 20))
     f_sub = font(SANS, 20)
     text_block(d, (hx0 + 14, hy0 + 282),
-               "Iran says oil tankers struck mines, exploded and caught fire "
-               "in the strait that carries a fifth of the world's oil. Trump "
-               "warned Iranian ships testing the US blockade would end up "
-               "\u201cat the bottom of the sea\u201d.",
+               "Two tankers struck mines, exploded and caught fire in the "
+               "strait that carries a fifth of the world's oil, amid the US "
+               "blockade of Iran's ports. Trump warned ships testing it "
+               "would end up \u201cat the bottom of the sea\u201d.",
                f_sub, (35, 35, 40), 960, 2, 26)
 
-    # --- 2 x 2 grid ---
+    # --- 2 x 2 grid (enlarged: 262 tall, taller scenes, uniform 17px subs) ---
     panels = [
-        (16, 518, scene_rocket, "SPACE · ASIA",
-         "PAKISTAN'S FIRST ASTRONAUT REACHES ORBIT",
-         "Muhammad Zeeshan Ali, 40, flew aboard China's Shenzhou-24 to the "
-         "Tiangong station — the first Pakistani in orbit, and the first "
-         "foreign guest ever at the station."),
-        (520, 518, scene_trade, "TRADE · EUROPE–ASIA",
+        (16, 462, scene_rocket, "SPACE · ASIA",
+         "PAKISTAN'S FIRST ASTRONAUT IN ORBIT",
+         "Muhammad Zeeshan Ali, 40, flew aboard Shenzhou-24 and docked at "
+         "Tiangong, its first foreign guest."),
+        (520, 462, scene_trade, "TRADE · EUROPE–ASIA",
          "EU AND INDONESIA SIGN TRADE DEAL",
          "After 10 years of talks, duties fall on 90% of goods and EU "
-         "exporters save \u20ac650m a year, as both sides seek cover from "
-         "Trump's tariffs."),
-        (16, 770, scene_huawei, "TECH · USA",
+         "exporters save \u20ac600m a year."),
+        (16, 730, scene_huawei, "TECH · USA",
          "HUAWEI GUILTY ON 10 OF 12 CHARGES",
-         "A Brooklyn jury convicted the Chinese telecom giant of stealing "
-         "trade secrets and bank fraud. Huawei faces billions in fines and "
-         "plans to appeal."),
-        (520, 770, scene_elnino, "CLIMATE · PACIFIC",
-         "EL NIÑO HEADS FOR A STRONG PEAK",
-         "The WMO is expanding preparedness as the event nears its "
-         "late-2026 peak. Odds of strong-to-very-strong conditions into "
-         "March 2027 top 79%."),
+         "A Brooklyn jury convicted the telecom giant of bank fraud and "
+         "stealing trade secrets; Huawei plans to appeal."),
+        (520, 730, scene_solomon, "SECURITY · PACIFIC",
+         "SOLOMONS SIGN SECURITY TREATY",
+         "Wale and Albanese signed in Canberra: Australia is the primary "
+         "security partner; no foreign base."),
     ]
-    pw, ph = 488, 240
+    pw, ph = 488, 262
     for (px, py, scene, beat, title, sub) in panels:
         d.rectangle([S(px), S(py), S(px + pw), S(py + ph)], fill=(255, 255, 255),
                     outline=(30, 30, 35), width=S(2))
-        scene(d, (px + 2, py + 2, px + pw - 2, py + 142))
+        scene(d, (px + 2, py + 2, px + pw - 2, py + 158))
         chip(d, px + 10, py + 10, beat, navy)
-        f_t = font(SERIF_B, 23)
-        text_block(d, (px + 12, py + 147), title, f_t, (15, 15, 20),
+        f_t = font(SERIF_B, 22)
+        text_block(d, (px + 12, py + 164), title, f_t, (15, 15, 20),
                    pw - 24, 2, 26)
         # title height: measure lines actually used
         nlines = len(wrap(d, title, f_t, pw - 24))
-        f_s = font(SANS, 16)
-        text_block(d, (px + 12, py + 147 + nlines * 26 + 1), sub, f_s,
-                   (35, 35, 40), pw - 24, 2, 19)
+        f_s = font(SANS, 17)
+        text_block(d, (px + 12, py + 164 + nlines * 26 + 2), sub, f_s,
+                   (35, 35, 40), pw - 24, 2, 21)
 
     out = img.resize((W, H), Image.LANCZOS)
     out.save(os.path.join(HERE, "entry.png"), "PNG", optimize=True)
